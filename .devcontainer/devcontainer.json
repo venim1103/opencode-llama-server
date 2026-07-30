@@ -1,0 +1,78 @@
+{
+  "name": "LLM Local Server",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".",
+    "options": [
+      "--format=docker"
+    ],
+    "args": {
+      "USERNAME": "vscode",
+      "USER_UID": "1000",
+      "USER_GID": "1000"
+    }
+  },
+  "runArgs": [
+    "--device",
+    "nvidia.com/gpu=all",
+    "--device",
+    "/dev/dxg",
+    "--security-opt",
+    "label=disable",
+    "--mount",
+    "type=bind,source=/usr/lib/wsl,target=/usr/lib/wsl,readonly",
+    "--mount",
+    "type=bind,source=/mnt/wslg,target=/mnt/wslg",
+    "-p",
+    "127.0.0.1:1337:1337"
+  ],
+  "initializeCommand": "mkdir -p /tmp/devcontainer-certs && (cp /etc/ssl/certs/ZscalerRootCertificate-2048-SHA256.pem /tmp/devcontainer-certs/ZscalerRootCertificate-2048-SHA256.crt 2>/dev/null || touch /tmp/devcontainer-certs/ZscalerRootCertificate-2048-SHA256.crt)",
+  "mounts": [
+    "source=/tmp/devcontainer-certs/ZscalerRootCertificate-2048-SHA256.crt,target=/usr/local/share/ca-certificates/ZscalerRootCertificate-2048-SHA256.crt,type=bind,readonly"
+  ],
+  "containerEnv": {
+    "REQUESTS_CA_BUNDLE": "/etc/ssl/certs/ca-certificates.crt",
+    "SSL_CERT_FILE": "/etc/ssl/certs/ca-certificates.crt",
+    "CURL_CA_BUNDLE": "/etc/ssl/certs/ca-certificates.crt",
+    "LD_LIBRARY_PATH": "/usr/lib/wsl/lib:/usr/local/cuda/lib64",
+    "NVIDIA_VISIBLE_DEVICES": "all",
+    "NVIDIA_DRIVER_CAPABILITIES": "compute,utility",
+    "DISPLAY": ":0",
+    "WAYLAND_DISPLAY": "wayland-0",
+    "XDG_RUNTIME_DIR": "/mnt/wslg/runtime-dir",
+    "REPO_URL": "https://github.com/ggml-org/llama.cpp.git"
+  },
+  "features": {},
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python"
+      ],
+      "settings": {
+        "dev.containers.dockerPath": "podman",
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "bash",
+            "args": [
+              "-l"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "forwardPorts": [
+    1337
+  ],
+  "portsAttributes": {
+    "1337": {
+      "label": "llama-server",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": "bash /workspaces/llm-server/.devcontainer/post-create.sh",
+  "workspaceFolder": "/workspaces/llm-server",
+  "remoteUser": "vscode",
+  "updateRemoteUserUID": true
+}

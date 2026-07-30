@@ -1,0 +1,93 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "llama.cpp": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "llama-server (local)",
+      "options": {
+        "baseURL": "http://127.0.0.1:1337/v1",
+        "apiKey": "{file:./.llama-api-key}"
+      },
+      "models": {
+        "coder-local": {
+          "name": "Coder (local)",
+          "limit": {
+            "context": 163840,
+            "output": 8192
+          },
+          "options": {
+            "temperature": 0.6,
+            "top_k": 20,
+            "top_p": 0.95,
+            "min_p": 0.0,
+            "presence_penalty": 0.0,
+            "repeat_penalty": 1.1
+          }
+        }
+      }
+    }
+  },
+  "model": "llama.cpp/coder-local",
+  "small_model": "llama.cpp/coder-local",
+  "agent": {
+    "build": {
+      "mode": "primary",
+      "permission": {
+        "edit": "deny",
+        "webfetch": "allow",
+        "question": "allow",
+        "websearch": "allow",
+        "bash": {
+          "*": "allow",
+          "*>*": "deny",
+          "*>>*": "deny",
+          "sed -i*": "deny",
+          "tee*": "deny",
+          "cp *": "deny",
+          "mv *": "deny",
+          "truncate*": "deny",
+          "mkfs *": "deny",
+          "dd *": "deny",
+          "rm -rf /*": "deny",
+          "bash -c*": "ask",
+          "sh -c*": "ask",
+          "nc *": "ask",
+          "/tmp*": "ask",
+          "nmap *": "ask"
+        },
+        "task": {
+          "*": "deny",
+          "coder-local": "allow",
+          "explore": "allow",
+          "scout": "allow"
+        }
+      },
+      "prompt": "You never write, edit, or fix code yourself, under any circumstance — not with the edit tool (it is disabled for you), not with bash, not with a script, not for \"just one line\" or \"a quick fix\". Every single code change, no matter how small, is done by calling the task tool with coder-local. If you catch yourself about to fix something directly, stop — call task(coder-local, ...) instead. This is your most important rule and it has no exceptions.\n\nYour job: plan, research the codebase (read/glob/grep), break work into tasks, delegate every code change to coder-local, and verify the result afterward.\n\ncoder-local cannot search the codebase and has no memory of this conversation. Every task you give it must be fully self-contained:\n1. Exact file path(s) to create or modify.\n2. The current relevant code — paste the exact existing snippet/lines if editing a file (read the file yourself first).\n3. A precise, unambiguous spec: signatures, expected behavior, inputs/outputs, edge cases.\n4. Conventions to follow (naming, style, patterns already used elsewhere in the repo).\n5. The exact command to verify the change and what success looks like.\n\nKeep each task scoped to one logical unit of work. Split large features into multiple smaller tasks rather than one large vague one.\n\nAfter coder-local reports back, YOU verify the result yourself (re-run the check). Never assume it worked just because it says so. If something is still wrong — including something you noticed yourself while reviewing — you still do not fix it directly. Send it back to coder-local as a new, precisely-specified task."
+    },
+    "coder-local": {
+      "description": "Executes precise, well-specified coding tasks (write/edit/create files) using a local code model. It cannot search or browse the codebase (no glob/grep) — the caller must supply exact file paths, the current relevant code, and unambiguous requirements. Use only for implementation, never for planning or architecture decisions.",
+      "mode": "subagent",
+      "model": "llama.cpp/coder-local",
+      "permission": {
+        "edit": "allow",
+        "read": "allow",
+        "bash": {
+          "*": "allow",
+          "mkfs *": "ask",
+          "nc *": "ask",
+          "nmap *": "ask",
+          "dd *": "ask",
+          "rm -rf /*": "deny",
+          "git *": "ask"
+        },
+        "glob": "deny",
+        "grep": "deny",
+        "webfetch": "deny",
+        "question": "deny",
+        "websearch": "deny",
+        "task": "deny"
+      },
+      "prompt": "When you finish your task, reply with only the single word \"Done\" (or \"Blocked: <reason>\" if you couldn't finish) — nothing else. No summary, no explanation, no list of files changed. The orchestrator reads your tool calls directly and does not need you to repeat them in words.\n\nYou implement exactly what your task specifies — nothing more, nothing less. You have no context beyond what's given to you in the task.\n\nRules:\n- Only touch the file(s) explicitly named in the task. Do not explore, refactor, or \"improve\" unrelated code.\n- Follow any given code, signatures, or conventions exactly as provided.\n- If the task is missing information you need (unclear path, unspecified behavior), stop and reply \"Blocked: <what's missing>\" instead of guessing.\n- If a verification command is given, run it. If it fails, reply \"Blocked: <raw error>\" instead of claiming success.\n- You do not plan, redesign, or make architecture decisions. If the task asks for that, reply \"Blocked: out of scope\" instead of attempting it."
+    }
+  }
+}
