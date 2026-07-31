@@ -24,7 +24,7 @@
     "--mount",
     "type=bind,source=/mnt/wslg,target=/mnt/wslg",
     "-p",
-    "127.0.0.1:1337:1337"
+    "127.0.0.1:8080:8080"
   ],
   "initializeCommand": "mkdir -p /tmp/devcontainer-certs && (cp /etc/ssl/certs/ZscalerRootCertificate-2048-SHA256.pem /tmp/devcontainer-certs/ZscalerRootCertificate-2048-SHA256.crt 2>/dev/null || touch /tmp/devcontainer-certs/ZscalerRootCertificate-2048-SHA256.crt)",
   "mounts": [
@@ -63,16 +63,17 @@
     }
   },
   "forwardPorts": [
+    8080,
     1337
   ],
   "portsAttributes": {
-    "1337": {
-      "label": "llama-server",
+    "8080": {
+      "label": "opencode-llama-server",
       "onAutoForward": "notify"
     }
   },
-  "postCreateCommand": "bash /workspaces/llm-server/.devcontainer/post-create.sh",
-  "workspaceFolder": "/workspaces/llm-server",
+  "postCreateCommand": "bash /workspaces/opencode-llama-server/.devcontainer/post-create.sh",
+  "workspaceFolder": "/workspaces/opencode-llama-server",
   "remoteUser": "vscode",
   "updateRemoteUserUID": true
 }

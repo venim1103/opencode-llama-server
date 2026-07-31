@@ -86,8 +86,13 @@ LLAMA_SRC_DIR="$WORKSPACE_ROOT/llama.cpp"
 LLAMA_BUILD_DIR="${LLAMA_BUILD_DIR:-$LLAMA_SRC_DIR/build-cuda}"
 
 if [[ ! -d "$LLAMA_SRC_DIR" ]]; then
-    echo "ERROR: llama.cpp source directory not found at $LLAMA_SRC_DIR"
-    exit 1
+    if [[ -n "${REPO_URL:-}" ]]; then
+        echo "==> llama.cpp not found, cloning from \$REPO_URL..."
+        git clone "$REPO_URL" "$LLAMA_SRC_DIR"
+    else
+        echo "ERROR: llama.cpp source directory not found at $LLAMA_SRC_DIR and REPO_URL is not set"
+        exit 1
+    fi
 fi
 
 if [[ "${LLAMA_SKIP_BUILD:-0}" == "1" ]]; then
