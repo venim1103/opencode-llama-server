@@ -3,7 +3,7 @@ set -euo pipefail
 
 WORKSPACE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LLAMA_SRC_DIR="$WORKSPACE_ROOT/llm-server/llama.cpp"
+LLAMA_SRC_DIR="$WORKSPACE_ROOT/opencode-llama-server/llama.cpp"
 LLAMA_BUILD_DIR="${LLAMA_BUILD_DIR:-$LLAMA_SRC_DIR/build-cuda}"
 LLAMA_SERVER_BIN="$LLAMA_BUILD_DIR/bin/llama-server"
 
