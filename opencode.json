@@ -12,7 +12,7 @@
         "coder-local": {
           "name": "Coder (local)",
           "limit": {
-            "context": 163840,
+            "context": 102400,
             "output": 8192
           },
           "options": {

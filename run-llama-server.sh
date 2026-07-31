@@ -30,9 +30,9 @@ N_GPU_LAYERS="${LLAMA_N_GPU_LAYERS:-999}"
 THREADS="${LLAMA_THREADS:-$(nproc)}"
 MODEL_ALIAS="${LLAMA_MODEL_ALIAS:-coder-local}"
 #CONTEXT_LEN="${CONTEXT_LEN:-196608}"
-CONTEXT_LEN="${CONTEXT_LEN:-163840}"
+#CONTEXT_LEN="${CONTEXT_LEN:-163840}"
 #CONTEXT_LEN="${CONTEXT_LEN:-131072}"
-#CONTEXT_LEN="${CONTEXT_LEN:-102400}"
+CONTEXT_LEN="${CONTEXT_LEN:-102400}"
 #CONTEXT_LEN="${CONTEXT_LEN:-98304}"
 #CONTEXT_LEN="${CONTEXT_LEN:-65536}"
 #CONTEXT_LEN="${CONTEXT_LEN:-32768}"
@@ -49,6 +49,16 @@ POLL_ENABLED="${POLL_ENABLED:-0}"
 # server slots divide -c across themselves; pin to 1 so the full context is usable per conversation
 N_PARALLEL="${N_PARALLEL:-1}"
 API_KEY_FILE="${LLAMA_API_KEY_FILE:-$SCRIPT_DIR/.llama-api-key}"
+
+# MTP (NextN) self-speculative decoding: set LLAMA_SPEC_TYPE=draft-mtp for GGUFs
+# that embed nextn_predict_layers (e.g. Qwen3.5 MTP quants). Leave unset for models without it.
+SPEC_TYPE="${LLAMA_SPEC_TYPE:-}"
+SPEC_DRAFT_N_MAX="${LLAMA_SPEC_DRAFT_N_MAX:-3}"
+SPEC_DRAFT_N_MIN="${LLAMA_SPEC_DRAFT_N_MIN:-1}"
+SPEC_ARGS=()
+if [[ -n "$SPEC_TYPE" ]]; then
+    SPEC_ARGS=(--spec-type "$SPEC_TYPE" --spec-draft-n-max "$SPEC_DRAFT_N_MAX" --spec-draft-n-min "$SPEC_DRAFT_N_MIN")
+fi
 
 # Regenerate a fresh key every run (set LLAMA_API_KEY to pin one, or LLAMA_DISABLE_API_KEY=1 to skip)
 if [[ "${LLAMA_DISABLE_API_KEY:-0}" == "1" ]]; then
@@ -77,5 +87,6 @@ exec "$LLAMA_SERVER_BIN" \
     --poll "$POLL_ENABLED" \
     -np "$N_PARALLEL" \
     -fa on \
+    "${SPEC_ARGS[@]}" \
     ${API_KEY:+--api-key "$API_KEY"} \
     "$@"
