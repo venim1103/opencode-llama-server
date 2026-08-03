@@ -12,7 +12,7 @@
         "coder-local": {
           "name": "Coder (local)",
           "limit": {
-            "context": 102400,
+            "context": 65536,
             "output": 8192
           },
           "options": {
@@ -27,7 +27,7 @@
       }
     }
   },
-  "model": "llama.cpp/coder-local",
+  "model": "github-copilot/claude-sonnet-5",
   "small_model": "llama.cpp/coder-local",
   "agent": {
     "build": {
