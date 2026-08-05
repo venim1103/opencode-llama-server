@@ -23,17 +23,14 @@
     "type=bind,source=/usr/lib/wsl,target=/usr/lib/wsl,readonly",
     "--mount",
     "type=bind,source=/mnt/wslg,target=/mnt/wslg",
-    "-p",
-    "127.0.0.1:8080:8080",
-    "-p",
-    "1337:1337"
+    "-p", "0.0.0.0:8080:8080",
+    "-p", "0.0.0.0:1337:1337"
   ],
   "initializeCommand": "mkdir -p /tmp/devcontainer-certs && (cp /etc/ssl/certs/ZscalerRootCertificate-2048-SHA256.pem /tmp/devcontainer-certs/ZscalerRootCertificate-2048-SHA256.crt 2>/dev/null || touch /tmp/devcontainer-certs/ZscalerRootCertificate-2048-SHA256.crt)",
   "mounts": [
     "source=/tmp/devcontainer-certs/ZscalerRootCertificate-2048-SHA256.crt,target=/usr/local/share/ca-certificates/ZscalerRootCertificate-2048-SHA256.crt,type=bind,readonly"
   ],
   "containerEnv": {
-//    "LLAMA_BASE_URL": "http://host.containers.internal:1337/v1",
     "LLAMA_BASE_URL": "http://127.0.0.1:1337/v1",
     "REQUESTS_CA_BUNDLE": "/etc/ssl/certs/ca-certificates.crt",
     "SSL_CERT_FILE": "/etc/ssl/certs/ca-certificates.crt",
